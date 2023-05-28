@@ -32,19 +32,20 @@ function App() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCardList()])
-      .then(([userData, initialCards]) => {
-        setCurrentUser(userData);
-        setCards(initialCards);
-      })
-      .catch(console.error);
-
+    if (isLoggedIn) {
+      Promise.all([api.getUserInfo(), api.getCardList()])
+        .then(([userData, initialCards]) => {
+          setCurrentUser(userData);
+          setCards(initialCards);
+        })
+        .catch(console.error);
+    }
     handleCheckToken();
-    }, []);
+    }, [isLoggedIn]);
 
   React.useEffect(() => {
     handleCheckToken();
-  }, [isLoggedIn])
+  }, [])
 
   function handleCheckToken() {
     const token = localStorage.getItem('token');
@@ -187,11 +188,11 @@ function App() {
           <Route path="*" element={isLoggedIn ? <Navigate to="/" replace /> : <Navigate to="/sign-in" replace />} />
           <Route path="/sign-up" element={
             <>
-              <Register onRegister={handleRegister} />
+              <Register submitHandler={handleRegister} />
               <InfoTooltip isOpen={isInfoTooltipPopupOpen} isSuccess={isSuccess} onClose={closeAllPopups} />
             </>
           } />
-          <Route path="/sign-in" element={<Login onLogin={handleLogin} />} />
+          <Route path="/sign-in" element={<Login submitHandler={handleLogin} />} />
 
           <Route path="/" element={<ProtectedRoute
             element={Main}
