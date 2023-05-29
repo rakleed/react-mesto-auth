@@ -32,22 +32,6 @@ function App() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    if (isLoggedIn) {
-      Promise.all([api.getUserInfo(), api.getCardList()])
-        .then(([userData, initialCards]) => {
-          setCurrentUser(userData);
-          setCards(initialCards);
-        })
-        .catch(console.error);
-    }
-    handleCheckToken();
-    }, [isLoggedIn]);
-
-  React.useEffect(() => {
-    handleCheckToken();
-  }, [])
-
-  function handleCheckToken() {
     const token = localStorage.getItem('token');
     if (token) {
       Auth.checkToken(token).then(res => {
@@ -66,7 +50,18 @@ function App() {
           navigate("/sign-in", {replace: true});
         })
     }
-  }
+  }, [])
+
+  React.useEffect(() => {
+    if (isLoggedIn) {
+      Promise.all([api.getUserInfo(), api.getCardList()])
+        .then(([userData, initialCards]) => {
+          setCurrentUser(userData);
+          setCards(initialCards);
+        })
+        .catch(console.error);
+    }
+  }, [isLoggedIn]);
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -166,6 +161,7 @@ function App() {
       .then(data => {
         if (data['token']) {
           localStorage.setItem('token', data['token']);
+          setEmail(values.email);
           setIsLoggedIn(true);
           navigate('/', {replace: true});
         }
